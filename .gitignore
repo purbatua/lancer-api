@@ -1,0 +1,16 @@
+# personal
+# notes/
+trash/
+
+# dependencies
+node_modules/
+
+# compiled
+dist/
+
+# logger
+npm-debug.log
+
+
+# production
+app.yaml
