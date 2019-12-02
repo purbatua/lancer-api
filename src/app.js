@@ -1,3 +1,4 @@
+import get from 'lodash/get';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -49,25 +50,48 @@ app.disable('x-powered-by');
 // });
 
 
-var whitelist = ['https://slotip-dashboard.herokuapp.com', 'http://localhost:4200'];
-const corsOptions = {
-  // origin: function (origin, callback) {
-  //   if (whitelist.indexOf(origin) !== -1) {
-  //     callback(null, true)
-  //   } else {
-  //     callback(new Error('Not allowed by CORS'))
-  //   }
-	// }
-	origin: "*",
-  methods: "GET,HEAD,PATCH,POST,DELETE,OPTIONS",
-  preflightContinue: true,
-	optionsSuccessStatus: 204,
-	allowedHeaders: ['Origin', 'Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
-	exposedHeaders: ['Content-Range', 'Authorization'],
-	credentials: true
-}
+// var whitelist = ['https://slotip-dashboard.herokuapp.com', 'http://localhost:4200'];
+// const corsOptions = {
+//   // origin: function (origin, callback) {
+//   //   if (whitelist.indexOf(origin) !== -1) {
+//   //     callback(null, true)
+//   //   } else {
+//   //     callback(new Error('Not allowed by CORS'))
+//   //   }
+// 	// }
+// 	origin: "*",
+//   methods: "GET,HEAD,PATCH,POST,DELETE,OPTIONS",
+//   preflightContinue: true,
+// 	optionsSuccessStatus: 204,
+// 	allowedHeaders: ['Origin', 'Authorization', 'Content-Type', 'Accept', 'X-Requested-With'],
+// 	exposedHeaders: ['Content-Range', 'Authorization'],
+// 	credentials: true
+// }
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+
+app.use(function (req, res, next) {
+
+  var origin = get(req, 'headers.origin');
+
+  if(origin) {
+    var regex = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|www\.)?/i;
+    var whitelist = (config.cors_whitelist || '').split(',').map(function(url) {
+      return (url || '').trim().replace(regex, '');
+    });
+
+    var domain = origin.replace(regex, '');
+
+    if(whitelist.indexOf(domain) !== -1) {
+      res.header("Access-Control-Allow-Origin", origin);
+    }
+  }
+
+  res.header('Access-Control-Allow-Methods', '*');
+  res.header("Access-Control-Expose-Headers", "X-Pagination-Total-Count");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-AUTH-TOKEN");
+  next();
+});
 
 
 

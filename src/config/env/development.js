@@ -8,7 +8,7 @@ module.exports = {
   mongo: {
     // uri: 'mongodb://localhost/inventoree-dev',
     // uri: 'mongodb://localhost/slotip-dev',
-    uri: 'mongodb://localhost/inventoree-test',
+    uri: 'mongodb://localhost/lancer-dev',
     // uri: 'mongodb://localhost/inventoree-seed',
     options: {
       // useMongoClient: true
@@ -23,5 +23,6 @@ module.exports = {
       salt: 'Myk',
       length: 5
     }
-  }
+  },
+  cors_whitelist: 'http://localhost:8080'
 }

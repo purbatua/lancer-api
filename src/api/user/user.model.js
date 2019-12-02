@@ -12,15 +12,16 @@ const UserSchema = mongoose.Schema({
   // username: {type: String, unique: true, required: true},
   uuid: {type: String, unique: true, required: true},
 	email: {type: String, unique: true, required: true},
+	username: {type: String, unique: true, required: true},
 	password: {type: String, required: true},
 	salt: String,
-  fullname: {type: String, required: true},
+  // fullname: {type: String, required: true},
   picture: {type: String, defualt: 'https://api.adorable.io/avatars/285/abott@adorable.png'},
-  company: {type: ObjectId, ref: 'Company', default: null},
+  // company: {type: ObjectId, ref: 'Company', default: null},
 	role: {type: ObjectId, ref: 'Role', default: null},
-	preference: {
-		language: {type: String, default: 'id-ID'}
-	},
+	// preference: {
+	// 	language: {type: String, default: 'id-ID'}
+	// },
   active: {type: Boolean, default: true},
   deleted: {
     at: {type: Date, default: Date.now},
@@ -51,19 +52,19 @@ UserSchema.pre('validate', function(next) {
   next()
 })
 
-UserSchema.pre('save', true, function(next, done) {
+UserSchema.pre('save', function(next) {
 	let self = this
 	if(this.isNew) {
-    if(!this.role) {
-      Role.findOne({slug: 'user'})
-      .then(function(role) {
-        self.role = role._id
-        next()
-      })
-      .catch(function(err) {
-        next(err)
-      })
-    }
+    // if(!this.role) {
+    //   Role.findOne({slug: 'user'})
+    //   .then(function(role) {
+    //     self.role = role._id
+    //     next()
+    //   })
+    //   .catch(function(err) {
+    //     next(err)
+    //   })
+    // }
 
 		let saltRounds = 11
 		bcrypt.genSalt(saltRounds, function(err, salt) {
@@ -73,11 +74,11 @@ UserSchema.pre('save', true, function(next, done) {
 			bcrypt.hash(self.password, salt, function(err, hash) {
 				if(err) return next(err)
 				self.password = hash
-				done()
+				next()
 			})
 		})
 	} else {
-		done()
+		next()
 	}
 })
 

@@ -20,5 +20,7 @@ module.exports = {
       salt: 'Myk',
       length: 5
     }
-  }
+  },
+  cors_whitelist: process.env.CORS_WHITELIST
+
 }

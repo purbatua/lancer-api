@@ -164,35 +164,24 @@ export function login (req, res) {
 export function register(req, res) {
   const body = req.body;
 
-  // console.log('AUTH/REGISTER: Company created ', body)
   log.beauty('REGISTER PAYLOAD', body)
 
-  Company.create({name: req.body.company})
-    .then(newCompany => {
-      // log.beauty('COMPANY', newCompany)
+  return User.create(body)
+    .then(user => {
+      log.beauty('USER', user)
       
-      body.company = newCompany
-      return User.create(body)
-        .then(user => {
-          // log.beauty('USER', user)
-          
-          // this.login(req, res)
-          return User.authenticate(req.body.email.trim(), req.body.password, (err, user) => {
-            if(err) {return res.status(500).send(err)}
-            if(!user) {return res.status(404).send({message: 'Invalid email or password'})}
-        
-            const userPayload = _.pick(user, ['_id', 'email', 'fullname', 'picture', 'role', 'company']);
-            const token = jwt.sign(userPayload, config.token.secret, {expiresIn: config.token.expired});
-        
-            return res.status(200).json({token, user: userPayload});
-          })
-        })
-        .catch(error => {
-          return Company.deleteOne({ _id: company.id }).exec((err, success) => {
-            if (err) return res.send(500)
-            return res.status(409).send({ message: 'Email already exists' })
-          })
-        })
+      return User.authenticate(body.email, body.password, (err, user) => {
+        if(err) {return res.status(500).json(err)}
+        if(!user) {return res.status(400).json({message: 'Invalid email or password'})}
+    
+        const userPayload = _.pick(user, ['_id', 'email', 'username', 'fullname', 'picture', 'role']);
+        const token = jwt.sign(userPayload, config.token.secret, {expiresIn: config.token.expired});
+    
+        return res.status(200).json({token, user: userPayload});
+      })
     })
-    .catch(response.error)
+    .catch(error => {
+      console.error("[ERROR]:", error)
+      return res.status(500).json(error)
+    })
 }
